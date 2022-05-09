@@ -2,34 +2,10 @@ import requests
 import json
 from prettytable import *
 from bs4 import BeautifulSoup
-
-api_str = """
-{
-  "status": 0,
-  "msg": "success",
-  "data": [
-    {
-      "name": "江苏-无锡",
-      "trend": {
-        "list": [
-          {
-            "name": "新增无症状",
-            "data": []
-          },
-          {
-            "name": "新增本土",
-            "data": []
-          }
-        ],
-        "updateDate": []
-      }
-    }
-  ]
-}
-"""
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 # constants
-cities0 = [
+cities = [
     "江苏-苏州",
     "江苏-南京",
     "浙江-杭州",
@@ -58,7 +34,7 @@ def get_city_info(city_CHN, isArea=0):
     json_str = response.text
     obj = json.loads(json_str)
     
-    city = obj['data'][0]['name']
+    city =  obj['data'][0]['name'] if isArea else obj['data'][0]['name'].split("-")[1]
     trend = obj['data'][0]['trend']
     date_str = trend['updateDate'][-1]
     if isArea:
@@ -111,9 +87,10 @@ def weCom_robot_msg(covid_info, pt, travel_res_info):
         "markdown": {
             "content": content
         }
-    })
+    })    
     response = requests.request("POST", weCom_robot_webHook, headers=headers, data=payload)
     print("weCom robot response:", response.text)
+    print(content)
 
     for city, info in travel_res_info.items():
         quotes = "\n> ".join(info['out'])
@@ -136,19 +113,20 @@ def weCom_robot_msg(covid_info, pt, travel_res_info):
                 "content": lines_out+lines_in
             }
         })
-        # response = requests.request("POST", weCom_robot_webHook, headers=headers, data=payload)
-        # print("weCom robot response:", response.text)
+        response = requests.request("POST", weCom_robot_webHook, headers=headers, data=payload)
+        print("weCom robot response:", response.text)
+        print(lines_out+lines_in)
 
 def main():
     covidInfo = []
-    for city in cities0:
+    for city in cities:
         covidInfo.append(get_city_info(city, isArea=False))
     for area in areas:
         covidInfo.append(get_city_info(area, isArea=True))
     pt = PrettyTable()
-    pt.field_names = ["城市", "新增本土","新增无症状"]
-    pt.align['新增本土'] = 'r'
-    pt.align['新增无症状'] = 'r'
+    pt.field_names = ["城市", "本土","无症状"]
+    pt.align['本土'] = 'r'
+    pt.align['无症状'] = 'r'
 
     travel_res_info = {}
     for city in travel_restriction_urls.keys():
@@ -158,4 +136,9 @@ def main():
     weCom_robot_msg(covidInfo, pt, travel_res_info)
     
 if __name__ == '__main__':
-    main()
+    scheduler = BlockingScheduler()
+    # occur everyday at 12:01:01
+    # TODO    
+    scheduler.add_job(main, 'cron', hour=9, minute=1, second=1, timezone="Asia/Shanghai")
+    scheduler.start()
+    # main()
