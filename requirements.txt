@@ -1,3 +1,4 @@
+lxml
 prettytable
 APScheduler
 beautifulsoup4

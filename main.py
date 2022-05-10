@@ -41,8 +41,8 @@ def get_city_info(city_CHN, isArea=0):
         newPositive = trend['list'][4]['data'][-1]
         newConfirm = trend['list'][5]['data'][-1]
     else:
-        newPositive = trend['list'][0]['data'][-1]
-        newConfirm = trend['list'][1]['data'][-1]
+        newPositive = trend['list'][1]['data'][-1]
+        newConfirm = trend['list'][0]['data'][-1]
     return (city, date_str, newPositive, newConfirm)
 
 def get_travel_res_info(url):
@@ -137,8 +137,7 @@ def main():
     
 if __name__ == '__main__':
     scheduler = BlockingScheduler()
-    # occur everyday at 12:01:01
-    # TODO    
-    scheduler.add_job(main, 'cron', hour=9, minute=1, second=1, timezone="Asia/Shanghai")
+    # occur everyday at 11:01:01
+    scheduler.add_job(main, 'cron', hour=11, minute=1, second=1, timezone="Asia/Shanghai")
     scheduler.start()
     # main()
