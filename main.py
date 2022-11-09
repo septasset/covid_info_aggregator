@@ -9,9 +9,14 @@ cities = [
     "江苏-苏州",
     "江苏-南京",
     "浙江-杭州",
+    "广东-广州",
+    "广西-桂林",
+    "福建-厦门"
 ]
 areas = [
     "上海",
+    "北京",
+    "重庆"
 ]
 travel_restriction_urls = {
     "苏州": "http://m.suzhou.bendibao.com/news/gelizhengce/all.php?leavecity=nj&leavequ=&qu=", 
@@ -129,9 +134,9 @@ def main():
     pt.align['无症状'] = 'r'
 
     travel_res_info = {}
-    for city in travel_restriction_urls.keys():
-        info = get_travel_res_info(travel_restriction_urls[city])
-        travel_res_info[city] = info
+    # for city in travel_restriction_urls.keys():
+    #     info = get_travel_res_info(travel_restriction_urls[city])
+    #     travel_res_info[city] = info
 
     weCom_robot_msg(covidInfo, pt, travel_res_info)
     
