@@ -6,17 +6,32 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 # constants
 cities = [
+    [
     "江苏-苏州",
     "江苏-南京",
     "浙江-杭州",
+    ],
+    [
+    "浙江-杭州",
+    "浙江-湖州",
+    "浙江-绍兴",
+    "浙江-嘉兴",
+    "浙江-宁波",
+    "江苏-无锡",
+    "江苏-常州",
+    ],
+    [
     "广东-广州",
     "广西-桂林",
-    "福建-厦门"
+    "甘肃-兰州",
+    "湖南-长沙",
+    "西藏-拉萨",
+    ],
 ]
 areas = [
-    "上海",
-    "北京",
-    "重庆"
+    ["上海", "北京"],
+    [],
+    ["重庆"],    
 ]
 travel_restriction_urls = {
     "苏州": "http://m.suzhou.bendibao.com/news/gelizhengce/all.php?leavecity=nj&leavequ=&qu=", 
@@ -123,22 +138,23 @@ def weCom_robot_msg(covid_info, pt, travel_res_info):
         print(lines_out+lines_in)
 
 def main():
-    covidInfo = []
-    for city in cities:
-        covidInfo.append(get_city_info(city, isArea=False))
-    for area in areas:
-        covidInfo.append(get_city_info(area, isArea=True))
-    pt = PrettyTable()
-    pt.field_names = ["城市", "本土","无症状"]
-    pt.align['本土'] = 'r'
-    pt.align['无症状'] = 'r'
+    for i in range(len(cities)):
+        covidInfo = []
+        for city in cities[i]:
+            covidInfo.append(get_city_info(city, isArea=False))
+        for area in areas[i]:
+            covidInfo.append(get_city_info(area, isArea=True))
+        pt = PrettyTable()
+        pt.field_names = ["城市", "本土","无症状"]
+        pt.align['本土'] = 'r'
+        pt.align['无症状'] = 'r'
 
-    travel_res_info = {}
-    # for city in travel_restriction_urls.keys():
-    #     info = get_travel_res_info(travel_restriction_urls[city])
-    #     travel_res_info[city] = info
+        travel_res_info = {}
+        # for city in travel_restriction_urls.keys():
+        #     info = get_travel_res_info(travel_restriction_urls[city])
+        #     travel_res_info[city] = info
 
-    weCom_robot_msg(covidInfo, pt, travel_res_info)
+        weCom_robot_msg(covidInfo, pt, travel_res_info)
     
 if __name__ == '__main__':
     scheduler = BlockingScheduler()
